@@ -1,0 +1,26 @@
+token krisna
+7|qr0whFbLAKdbArXCID83QRofOOsZ1cvJ2o6r2cpu
+
+token santosa
+8|IuZgCJZMrwulR26d643rNTf2zi43SBiu11m5xmTJ
+
+0053460954
+65921883
+
+Check out 15 Februari 2022
+
+1. DB - Design Table & Relations (100%)
+2. BE - RnD JWT (100%)
+3. BE - Mendefinisikan Relasi antar tabel pada model (100%)
+4. BE - Membuat API Register (100%)
+5. BE - Membuat API Login (100%)
+6. BE - Membuat API untuk menambahkan Resep saya (100%)
+7. BE - Membuat API untuk melihat semua resep (100%)
+8. BE - Membuat API untuk Melihat resep masakan saya (100%)
+9. BE - Melakukan Konfigurasi Format JSON (70%)
+
+Kendala:
+- untuk format JSON validasi bagaimana kang? kalo untuk ngambil data saya sudah ikuti best practice dari https://jsonapi.org/ dan juga dari dokumentasi laravel nya
+tapi kalo untuk validasi bagaimana? misal ketika user salah username, berikut format validasi yang saya buat
+{message: "User not found"} atau {message: "bad credentials"}
+apakah cukup dengan format seperti itu?
