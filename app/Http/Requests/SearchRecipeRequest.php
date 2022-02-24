@@ -24,7 +24,7 @@ class SearchRecipeRequest extends FormRequest
 	public function rules()
 	{
 		return [
-			'recipe_name' => 'string'
+			'recipe_name' => 'string|nullable'
 		];
 	}
 }

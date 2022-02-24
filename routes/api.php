@@ -23,7 +23,10 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // ! make resource routes for Category, Level, and Recipe with sanctum middleware
 Route::middleware('auth:sanctum')->group(function () {
-	Route::post('search', [RecipeController::class, 'search']);
+	// Route::post('search', [RecipeController::class, 'search']);
+	Route::get('search', [RecipeController::class, 'search']);
+	Route::get('search-my-recipes', [RecipeController::class, 'searchByUserRecipes']);
+	Route::get('search-my-favorites', [RecipeController::class, 'searchByUserFavorites']);
 	Route::get('recipes/user-recipes', [RecipeController::class, 'userRecipes']);
 	Route::get('user-favorites', [RecipeController::class, 'userFavorites']);
 	Route::get('toggle-favorite/{recipe}', [RecipeController::class, 'toggleFavorite']);

@@ -15,7 +15,7 @@ class RecipeController extends Controller
 {
 	public function index()
 	{
-		$recipes = Recipe::with('category', 'level', 'user')->paginate(15);
+		$recipes = Recipe::with('category', 'level', 'user')->paginate(8);
 		return RecipeResource::collection($recipes);
 	}
 
@@ -41,7 +41,20 @@ class RecipeController extends Controller
 
 	public function show(Recipe $recipe)
 	{
-		return new RecipeResource($recipe);
+		$recipeDetail = Recipe::where('id', $recipe->id)->with('level', 'category', 'user')->first();
+		foreach ($recipeDetail as $recipe) {
+			if ($recipeDetail->user_id === auth()->user()->id) {
+				$recipeDetail->is_owner = true;
+			} else {
+				$recipeDetail->is_owner = false;
+			}
+			if (auth()->user()->favorites()->where('recipe_id', $recipeDetail->id)->exists()) {
+				$recipeDetail->is_favorite = true;
+			} else {
+				$recipeDetail->is_favorite = false;
+			}
+		}
+		return new RecipeResource($recipeDetail);
 	}
 
 	public function update(UpdateRecipeRequest $request, Recipe $recipe)
@@ -90,9 +103,141 @@ class RecipeController extends Controller
 	// ! make a function to fetch all recipe belongs to a logged in user
 	public function userRecipes()
 	{
-		$recipes = Recipe::where('user_id', auth()->user()->id)->with('category', 'level', 'user')->paginate(15);
+		$recipes = Recipe::where('user_id', auth()->user()->id)->with('category', 'level', 'user')->paginate(8);
+		foreach ($recipes as $recipe) {
+			if ($recipe->user_id === auth()->user()->id) {
+				$recipe->is_owner = true;
+			} else {
+				$recipe->is_owner = false;
+			}
+			if (auth()->user()->favorites()->where('recipe_id', $recipe->id)->exists()) {
+				$recipe->is_favorite = true;
+			} else {
+				$recipe->is_favorite = false;
+			}
+		}
+
 		return RecipeResource::collection($recipes);
 	}
+
+	// search recipe by userRecipes
+	public function searchByUserRecipes(SearchRecipeRequest $request)
+	{
+		$recipe_name = $request->recipe_name;
+		$category = $request->category;
+		$level = $request->level;
+		$user = $request->user;
+		$how_to_cook = $request->how_to_cook;
+		$ingredients = $request->ingredients;
+
+		$timeBetween = explode("to", $request->timeBetween);
+
+		$from = $timeBetween[0] ?? 1;
+		$to = $timeBetween[1] ?? 999999999;
+
+		$recipes = Recipe::with('category', 'level', 'user')
+			->where('recipe_name', 'LIKE', '%' . $recipe_name . '%')
+			->when($how_to_cook, function ($query) use ($recipe_name) {
+				return $query->where('recipe_name', 'LIKE', '%' . $recipe_name . '%')
+					->orWhere('how_to_cook', 'LIKE', '%' . $recipe_name . '%');
+			})
+			->when($ingredients, function ($query) use ($recipe_name) {
+				return $query->where('recipe_name', 'LIKE', '%' . $recipe_name . '%')
+					->orWhere('ingredients', 'LIKE', '%' . $recipe_name . '%');
+			})
+			->when($timeBetween ?? null, function ($query) use ($from, $to) {
+				return $query->whereBetween('time', [$from, $to]);
+			})
+			->whereHas('category', function (Builder $query) use ($category) {
+				return $query->where('category_name', 'LIKE', '%' . $category . '%');
+			})
+			->whereHas('level', function (Builder $query) use ($level) {
+				return $query->where('name', 'LIKE', '%' . $level . '%');
+			})
+			->whereHas('user', function (Builder $query) use ($user) {
+				return $query->where('full_name', 'LIKE', '%' . $user . '%');
+			})
+			->where('user_id', auth()->user()->id)
+			->paginate(8);
+
+		foreach ($recipes as $recipe) {
+			if ($recipe->user_id === auth()->user()->id) {
+				$recipe->is_owner = true;
+			} else {
+				$recipe->is_owner = false;
+			}
+			if (auth()->user()->favorites()->where('recipe_id', $recipe->id)->exists()) {
+				$recipe->is_favorite = true;
+			} else {
+				$recipe->is_favorite = false;
+			}
+		}
+
+		return RecipeResource::collection($recipes);
+	}
+
+	//search by user favorites
+	public function searchByUserFavorites(SearchRecipeRequest $request)
+	{
+		$recipe_name = $request->recipe_name;
+		$category = $request->category;
+		$level = $request->level;
+		$user = $request->user;
+		$how_to_cook = $request->how_to_cook;
+		$ingredients = $request->ingredients;
+
+		$timeBetween = explode("to", $request->timeBetween);
+
+		$from = $timeBetween[0] ?? 1;
+		$to = $timeBetween[1] ?? 999999999;
+
+		$recipes = auth()->user()->favorites()->with('category', 'level', 'user')
+			->where('recipe_name', 'LIKE', '%' . $recipe_name . '%')
+			->when($how_to_cook == 'true', function ($query) use ($recipe_name) {
+				return $query->where('recipe_name', 'LIKE', '%' . $recipe_name . '%')
+					->orWhere('how_to_cook', 'LIKE', '%' . $recipe_name . '%');
+			})
+			->when($ingredients == 'true', function ($query) use ($recipe_name) {
+				return $query->where('recipe_name', 'LIKE', '%' . $recipe_name . '%')
+					->orWhere('ingredients', 'LIKE', '%' . $recipe_name . '%');
+			})
+			->when($request->time, function ($query, $time) {
+				return $query->where('time', '>', $time);
+			})
+			->when($timeBetween ?? null, function ($query) use ($from, $to) {
+				return $query->whereBetween('time', [$from, $to]);
+			})
+			->whereHas('category', function (Builder $query) use ($category) {
+				return $query->where('category_name', 'LIKE', '%' . $category . '%');
+			})
+			->whereHas('level', function (Builder $query) use ($level) {
+				return $query->where('name', 'LIKE', '%' . $level . '%');
+			})
+			->whereHas('user', function (Builder $query) use ($user) {
+				return $query->where('full_name', 'LIKE', '%' . $user . '%');
+			})
+			->whereHas('favorites', function (Builder $query) use ($user) {
+				return $query->where('user_id', auth()->user()->id);
+			})
+			->paginate(8);
+
+		foreach ($recipes as $recipe) {
+			if ($recipe->user_id === auth()->user()->id) {
+				$recipe->is_owner = true;
+			} else {
+				$recipe->is_owner = false;
+			}
+			if (auth()->user()->favorites()->where('recipe_id', $recipe->id)->exists()) {
+				$recipe->is_favorite = true;
+			} else {
+				$recipe->is_favorite = false;
+			}
+		}
+
+		return RecipeResource::collection($recipes);
+	}
+
+
 
 	// ! make a function to toggle favorite recipe
 	public function toggleFavorite(Recipe $recipe)
@@ -112,7 +257,19 @@ class RecipeController extends Controller
 
 	public function userFavorites()
 	{
-		$favoriteRecipes = auth()->user()->favorites()->with('category', 'level', 'user')->paginate(15);
+		$favoriteRecipes = auth()->user()->favorites()->with('category', 'level', 'user')->paginate(8);
+		foreach ($favoriteRecipes as $recipe) {
+			if ($recipe->user_id === auth()->user()->id) {
+				$recipe->is_owner = true;
+			} else {
+				$recipe->is_owner = false;
+			}
+			if (auth()->user()->favorites()->where('recipe_id', $recipe->id)->exists()) {
+				$recipe->is_favorite = true;
+			} else {
+				$recipe->is_favorite = false;
+			}
+		}
 
 		return RecipeResource::collection($favoriteRecipes);
 	}
@@ -124,16 +281,37 @@ class RecipeController extends Controller
 		$category = $request->category;
 		$level = $request->level;
 		$user = $request->user;
+		$how_to_cook = $request->how_to_cook;
+		$ingredients = $request->ingredients;
 
-		$recipes = Recipe::where('recipe_name', 'LIKE', '%' . $recipe_name . '%')->whereHas('category', function (Builder $query) use ($category) {
-			return $query->where('category_name', 'LIKE', '%' . $category . '%');
-		})
+		$timeBetween = explode("to", $request->timeBetween);
+
+		$from = $timeBetween[0] ?? 1;
+		$to = $timeBetween[1] ?? 999999999;
+
+		$recipes = Recipe::with('level', 'category', 'user')
+			->where('recipe_name', 'LIKE', '%' . $recipe_name . '%')
+			->when($how_to_cook == 'true', function ($query) use ($recipe_name) {
+				return $query->where('recipe_name', 'LIKE', '%' . $recipe_name . '%')
+					->orWhere('how_to_cook', 'LIKE', '%' . $recipe_name . '%');
+			})
+			->when($ingredients == 'true', function ($query) use ($recipe_name) {
+				return $query->where('recipe_name', 'LIKE', '%' . $recipe_name . '%')
+					->orWhere('ingredients', 'LIKE', '%' . $recipe_name . '%');
+			})
+			->when($timeBetween ?? null, function ($query) use ($from, $to) {
+				return $query->whereBetween('time', [$from, $to]);
+			})
+			->whereHas('category', function (Builder $query) use ($category) {
+				return $query->where('category_name', 'LIKE', '%' . $category . '%');
+			})
 			->whereHas('level', function (Builder $query) use ($level) {
 				return $query->where('name', 'LIKE', '%' . $level . '%');
 			})
 			->whereHas('user', function (Builder $query) use ($user) {
 				return $query->where('full_name', 'LIKE', '%' . $user . '%');
-			})->paginate(15);
+			})
+			->paginate(8);
 
 		// ! check if any recipe belongs to user logged in, if yes then add new column is_owner to the response and if any recipe is in favorites, then add new column is_favorite to the response if no then change column is_favorite and is_owner to false
 		foreach ($recipes as $recipe) {
