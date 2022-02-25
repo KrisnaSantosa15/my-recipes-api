@@ -1,64 +1,143 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+<!-- <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
 
 <p align="center">
 <a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+</p> -->
 
-## About Laravel
+## Preparation
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Untuk bisa menginstall aplikasi ini, diperlukan beberapa tools.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   **PHP**: Versi 8.1 atau yang lebih baru.
+-   **Apache**: Versi 2.4 atau yang lebih baru.
+-   **MySQL**: Versi 5.7 atau yang lebih baru.
+-   **Composer**: Versi 1.10 atau yang lebih baru.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Jika ingin menginstall semua tools tersebut sekaligus (Kecuali Composer), silahkan gunakan Laragon atau Xampp.
 
-## Learning Laravel
+## Instalasi
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+1. Clone repository ini dengan menggunakan command line:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```
+git clone https://github.com/KrisnaSantosa15/my-recipes-api.git
+```
 
-## Laravel Sponsors
+2. Buka terminal dan masuk ke folder yang telah di clone.
+3. Install packages laravel yang dibutuhkan dengan command:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+```
+composer install
+```
 
-### Premium Partners
+4. Siapkan database dengan nama my_recipes_api. (Gunakan HeidiSQL, phpMyadmin atau Database client lainnya)
+5. Masih pada folder project my-recipes-api, Copy file .env.example ke .env dengan command:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+```
+cp .env.example .env
+```
 
-## Contributing
+6. Generate key untuk .env dengan command:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
+php artisan key:generate
+```
 
-## Code of Conduct
+7. Konfigurasi database, url dan pastikan bahwa key sudah ada pada file .env, seperti contoh di bawah ini:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```diff
+APP_NAME=Laravel
+APP_ENV=local
++APP_KEY=base64:ThVlQSQANNHyityhzZFdMXfsBLH1WXiRB6e7mDEH2qs=
+APP_DEBUG=true
++APP_URL=http://localhost:8080
 
-## Security Vulnerabilities
+LOG_CHANNEL=stack
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
++DB_CONNECTION=mysql
++DB_HOST=127.0.0.1
++DB_PORT=3306
++DB_DATABASE=my_recipes_api
++DB_USERNAME=root
++DB_PASSWORD=root
 
-## License
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MEMCACHED_HOST=127.0.0.1
+
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+MAIL_MAILER=smtp
+MAIL_HOST=mailhog
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS=null
+MAIL_FROM_NAME="${APP_NAME}"
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+
+PUSHER_APP_ID=
+PUSHER_APP_KEY=
+PUSHER_APP_SECRET=
+PUSHER_APP_CLUSTER=mt1
+
+MIX_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+MIX_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+```
+
+8. Lakukan migrasi database dengan command:
+
+```
+php artisan migrate:fresh -seed
+```
+
+9. Jalankan aplikasi dengan command:
+
+```
+php artisan serve
+```
+
+10. Buka Postman dan akses http://localhost:8000/api/recipes
+
+11. Jika anda menggunakan Laragon, ganti url pada .env menjadi:
+
+```diff
++APP_URL=http://my-recipes-api.test
+```
+
+Ikuti sampai step ke 10 dengan URL yang anda gunakan. (Step 9 tidak perlu dilakukan jika anda menggunakan Laragon)
+
+12. Setelah step 10 dilakukan maka akan muncul pesan:
+
+```
+{
+	message: "Unauthenticated."
+}
+```
+
+Itu berati API sudah berhasil diakses tinggal kita mendapatkan token dengan melakukan Login.
+Pastikan kita sudah melakukan register ketika akan melakukan Login.
+
+## API Endpoints Documentation
+
+Berikut dokumentasi API yang tersedia:
+
+-   **[Dokumentasi Postman](https://documenter.getpostman.com/view/13030419/UVkpMuZv)**
